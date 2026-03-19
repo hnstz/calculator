@@ -15,12 +15,11 @@ function multiply(a, b) {
 
 function divide(a, b) {
     console.log(a / b);
-    return (a / b).toFixed(5);
+    return Number((a / b).toFixed(5));
 }
 
 let res = 0;
 function operate(firstNumber, secondNumber, operator){
-    
     switch(operator){
         case "+":
             res = add(firstNumber, secondNumber);
@@ -41,7 +40,6 @@ function operate(firstNumber, secondNumber, operator){
 function changeDisplay(val){
     const display = document.getElementById("display");
 
-    // if(display.innerHTML == "0123456789" || display.innerHTML == res && secondNumber !== ""){
     if(display.innerHTML == "0123456789"){
        display.innerHTML = "";
     }
@@ -50,7 +48,6 @@ function changeDisplay(val){
         display.innerHTML = "";
         return;
     } 
-
 
     display.innerHTML += val;
 }
@@ -63,7 +60,11 @@ function detect(){
     let operand;
 
     touchbtns.addEventListener('click', (e) => {
-        changeDisplay(e.target.textContent);
+        if (e.target.tagName !== "BUTTON") return; 
+
+        if (e.target.id !== "equal" && e.target.id !== "clearBtn") {
+            changeDisplay(e.target.textContent);
+        }
 
         if (e.target.className === "digit"){
             if(!operand){
@@ -72,24 +73,28 @@ function detect(){
             } else {
                 secondNumber += e.target.textContent;
                 console.log(`second number is ${secondNumber}`);
-                if (operand === "/" & +secondNumber === 0) {
+                if (operand === "/" && +secondNumber === 0) {
                     changeDisplay("clear");
                     alert("h o h o. you tried division by zero");
                     firstNumber = ""; secondNumber = ""; operand = undefined;
+                    return;
                 }
+            }
+        
+        } else if (e.target.className === "operator"){
+
+            if(secondNumber !== "" && operand !== undefined){                
                 operate(+firstNumber, +secondNumber, operand);
                 firstNumber = res; secondNumber = ""; operand = undefined;
                 changeDisplay("clear");
                 changeDisplay(res);
             }
-        
-        } else if (e.target.className === "operator"){
 
             if (operand !== undefined){
                 operand = e.target.textContent;
             }
 
-            if (document.getElementById("display").innerHTML === res){
+            if (document.getElementById("display").innerHTML == res){
                 firstNumber = res;
                 secondNumber = "";
                 operand = e.target.textContent;
@@ -97,7 +102,7 @@ function detect(){
                 if (secondNumber === "") {
                 operand = e.target.textContent;
                 console.log(`you tap operator ${operand}`);
-                } else {
+                } else{
                 operate(+firstNumber, +secondNumber, operand);
                 firstNumber = res; secondNumber = ""; operand = e.target.textContent;
                 changeDisplay("clear");
@@ -106,6 +111,12 @@ function detect(){
             }
             
         } else if (e.target.id === "equal"){
+            if(secondNumber === "" || operand === undefined || firstNumber === ""){
+                alert("please, enter the whole expression first")
+                firstNumber = ""; secondNumber = ""; operand = undefined;
+                changeDisplay("clear");
+                return; 
+            }
             operate(+firstNumber, +secondNumber, operand);
             firstNumber = res; secondNumber = ""; operand = undefined;
             changeDisplay("clear");
@@ -114,8 +125,6 @@ function detect(){
             changeDisplay("clear");
             firstNumber = ""; secondNumber = ""; operand = undefined;
         }
-    
-    
     })    
 }
 detect();
